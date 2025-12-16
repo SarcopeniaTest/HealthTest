@@ -255,15 +255,20 @@ if (document.getElementById('questionForm')) {
         `;
 
         modal.style.display = 'block';
+        document.body.classList.add('modal-open');
+
+        // Close modal function
+        const closeModal = () => {
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        };
 
         // Close modal
-        document.querySelector('.close').onclick = () => {
-            modal.style.display = 'none';
-        };
+        document.querySelector('.close').onclick = closeModal;
 
         window.onclick = (event) => {
             if (event.target === modal) {
-                modal.style.display = 'none';
+                closeModal();
             }
         };
 
