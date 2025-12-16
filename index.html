@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรแกรมการคัดกรองภาวะมวลกล้ามเนื้อน้อย SARC-F</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+            <h1>โปรแกรมการคัดกรองภาวะมวลกล้ามเนื้อน้อย SARC-F</h1>
+        </div>
+    </header>
+
+    <nav class="breadcrumb">
+        <span class="active">หน้าแรก</span>
+        <span>/</span>
+        <span>กรอกข้อมูล</span>
+    </nav>
+
+    <main class="container">
+        <div class="form-card">
+            <h2>กรุณาป้อนข้อมูลเพื่อการแปลผล</h2>
+            
+            <form id="personalInfoForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstname">ชื่อ (Firstname)</label>
+                        <input type="text" id="firstname" name="firstname" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastname">นามสกุล (Lastname)</label>
+                        <input type="text" id="lastname" name="lastname" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="age">อายุ (ปี) : Age (years)</label>
+                        <input type="number" id="age" name="age" min="1" max="120" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>เพศ (แปลผลเฉพาะผู้ใหญ่)</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="gender" value="ชาย" required>
+                            <span>ชาย</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="gender" value="หญิง">
+                            <span>หญิง</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="height">ส่วนสูง (เซนติเมตร)</label>
+                        <input type="number" id="height" name="height" min="50" max="250" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">น้ำหนัก (กิโลกรัม)</label>
+                        <input type="number" id="weight" name="weight" min="20" max="300" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bmi">ดัชนีมวลกาย(BMI)</label>
+                        <input type="text" id="bmi" name="bmi" readonly>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">ถัดไป</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

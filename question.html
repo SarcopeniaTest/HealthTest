@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบประเมินสุขภาพ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+            <h1>โปรแกรมการคัดกรองภาวะมวลกล้ามเนื้อน้อย SARC-F</h1>
+        </div>
+    </header>
+
+    <nav class="breadcrumb">
+        <span>หน้าแรก</span>
+        <span>/</span>
+        <span class="active">แบบประเมิน</span>
+    </nav>
+
+    <main class="container">
+        <div class="form-card question-card">
+            <div class="progress-indicator">
+                <span id="questionProgress">คำถามที่ 1 จาก 5</span>
+            </div>
+            
+            <h2 id="questionTitle">1. ความแข็งแรงของกล้ามเนื้อ (Strength)</h2>
+            <p id="questionText" class="question-text">ท่านคิดว่าการยกและถือของที่มีน้ำหนัก 20 กิโลกรัมยากหรือไม่</p>
+            
+            <form id="questionForm">
+                <div class="radio-group-vertical" id="optionsContainer">
+                    <!-- Options will be inserted here by JavaScript -->
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn-secondary" id="prevBtn" style="display: none;">ย้อนกลับ</button>
+                    <button type="submit" class="btn-primary" id="nextBtn">ถัดไป</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Modal for Results -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>ผลการประเมิน</h2>
+            <div id="modalBody">
+                <!-- Result will be inserted here -->
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-primary" id="saveBtn">บันทึกลง Google Sheets</button>
+                <button class="btn-secondary" id="newAssessmentBtn">ประเมินใหม่</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
