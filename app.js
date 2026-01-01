@@ -60,7 +60,7 @@ const STORAGE_KEYS = {
 };
 
 // Google Apps Script Web App URL - ใส่ URL ของคุณที่นี่
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzbxtopyBSVu2d2gOk23s1pfOl4_E-C59UzDvKsoptNij6jIHoJgP6RI_OdBE7f57Fi/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXcPjDodCH8OQ3hYai4QpVNhIgm5rdAjuSMIZlHNIzTciMcLRCZuLfMu6hjBG3aQwF/exec';
 
 // BMI Evaluation Function (เกณฑ์คนไทย)
 function evaluateBMI(bmi, gender) {
@@ -100,6 +100,73 @@ if (document.getElementById('personalInfoForm')) {
     const heightInput = document.getElementById('height');
     const weightInput = document.getElementById('weight');
     const bmiInput = document.getElementById('bmi');
+    const diseasesDisplay = document.getElementById('diseasesDisplay');
+    const diseasesOptions = document.getElementById('diseasesOptions');
+    const diseaseCheckboxes = document.querySelectorAll('input[data-disease]');
+    const otherDiseaseCheck = document.getElementById('otherDiseaseCheck');
+    const otherDiseaseText = document.getElementById('otherDiseaseText');
+
+    // Toggle dropdown
+    if (diseasesDisplay && diseasesOptions) {
+        diseasesDisplay.addEventListener('click', (e) => {
+            e.stopPropagation();
+            diseasesOptions.classList.toggle('show');
+            diseasesDisplay.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!diseasesDisplay.contains(e.target) && !diseasesOptions.contains(e.target)) {
+                diseasesOptions.classList.remove('show');
+                diseasesDisplay.classList.remove('active');
+            }
+        });
+
+        // Update display text when checkboxes change
+        diseaseCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                updateDiseasesDisplay();
+                
+                // Handle "ไม่มี" checkbox - uncheck others when selected
+                if (checkbox.value === 'ไม่มี' && checkbox.checked) {
+                    diseaseCheckboxes.forEach(cb => {
+                        if (cb !== checkbox) cb.checked = false;
+                    });
+                } else if (checkbox.checked && checkbox.value !== 'ไม่มี') {
+                    // Uncheck "ไม่มี" when selecting other diseases
+                    diseaseCheckboxes.forEach(cb => {
+                        if (cb.value === 'ไม่มี') cb.checked = false;
+                    });
+                }
+                
+                // Show/hide other disease text input
+                if (otherDiseaseCheck && otherDiseaseText) {
+                    otherDiseaseText.style.display = otherDiseaseCheck.checked ? 'block' : 'none';
+                    if (!otherDiseaseCheck.checked) {
+                        otherDiseaseText.value = '';
+                    }
+                }
+            });
+        });
+
+        function updateDiseasesDisplay() {
+            const selected = [];
+            diseaseCheckboxes.forEach(cb => {
+                if (cb.checked) {
+                    const label = cb.parentElement.querySelector('span').textContent;
+                    selected.push(label);
+                }
+            });
+
+            if (selected.length === 0) {
+                diseasesDisplay.textContent = 'เลือกโรคประจำตัว...';
+            } else if (selected.length <= 2) {
+                diseasesDisplay.textContent = selected.join(', ');
+            } else {
+                diseasesDisplay.textContent = `${selected.slice(0, 2).join(', ')} และอื่นๆ ${selected.length - 2} รายการ`;
+            }
+        }
+    }
 
     // Calculate BMI
     function calculateBMI() {
@@ -127,6 +194,24 @@ if (document.getElementById('personalInfoForm')) {
         e.preventDefault();
         
         const formData = new FormData(form);
+        
+        // Collect chronic diseases from custom multi-select
+        const diseases = [];
+        const diseaseCheckboxes = document.querySelectorAll('input[data-disease]:checked');
+        
+        if (diseaseCheckboxes.length === 0) {
+            // No diseases selected
+            diseases.push('ไม่มี');
+        } else {
+            diseaseCheckboxes.forEach(checkbox => {
+                if (checkbox.value === 'อื่นๆ' && otherDiseaseText && otherDiseaseText.value.trim()) {
+                    diseases.push('อื่นๆ: ' + otherDiseaseText.value.trim());
+                } else if (checkbox.value !== 'อื่นๆ') {
+                    diseases.push(checkbox.value);
+                }
+            });
+        }
+        
         const data = {
             firstname: formData.get('firstname'),
             lastname: formData.get('lastname'),
@@ -135,6 +220,7 @@ if (document.getElementById('personalInfoForm')) {
             height: formData.get('height'),
             weight: formData.get('weight'),
             bmi: bmiInput.value,
+            diseases: diseases,
             timestamp: new Date().toISOString()
         };
 
@@ -178,7 +264,7 @@ if (document.getElementById('questionForm')) {
 
         // Show/hide buttons
         prevBtn.style.display = currentQuestion > 0 ? 'block' : 'none';
-        nextBtn.textContent = currentQuestion === questions.length - 1 ? 'ดูผลลัพธ์' : 'ถัดไป';
+        nextBtn.textContent = currentQuestion === questions.length - 1 ? 'ต่อไป' : 'ถัดไป';
     }
 
     prevBtn.addEventListener('click', () => {
@@ -227,12 +313,187 @@ if (document.getElementById('questionForm')) {
         // Show modal
         const modal = document.getElementById('resultModal');
         const modalBody = document.getElementById('modalBody');
+        const additionalTestsSection = document.getElementById('additionalTestsSection');
         
-        modalBody.innerHTML = `
+        const age = parseInt(personalInfo.age);
+
+        // If SARC-F > 4 AND age >= 50, show additional tests FIRST (before showing results)
+        if (totalScore > 4 && age >= 50) {
+            // Hide main result body initially
+            modalBody.style.display = 'none';
+            
+            // Show only additional tests section
+            if (additionalTestsSection) {
+                additionalTestsSection.style.display = 'block';
+                
+                // Clear previous content
+                const handgripInput = document.getElementById('handgripStrength');
+                const gaitSpeedInput = document.getElementById('gaitSpeed');
+                const resultsDiv = document.getElementById('additionalTestResults');
+                
+                if (handgripInput) handgripInput.value = '';
+                if (gaitSpeedInput) gaitSpeedInput.value = '';
+                if (resultsDiv) resultsDiv.style.display = 'none';
+                
+                // Store additional test data
+                let additionalTestData = {
+                    handgripStrength: null,
+                    gaitSpeed: null,
+                    handgripStatus: null,
+                    gaitSpeedStatus: null,
+                    overallStatus: null
+                };
+
+                // Handle additional tests evaluation
+                document.getElementById('evaluateAdditionalTests').onclick = () => {
+                    const handgrip = parseFloat(handgripInput.value);
+                    const gaitSpeed = parseFloat(gaitSpeedInput.value);
+                    const age = parseInt(personalInfo.age);
+                    const gender = personalInfo.gender;
+                    
+                    if (isNaN(handgrip) || isNaN(gaitSpeed)) {
+                        alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                        return;
+                    }
+                    
+                    // Evaluate Handgrip strength
+                    let handgripStatus = 'ปกติ';
+                    let handgripThreshold = 0;
+                    
+                    if (age >= 50 && age <= 64) {
+                        if (gender === 'ชาย') {
+                            handgripThreshold = 34;
+                            handgripStatus = handgrip < 34 ? 'ผิดปกติ' : 'ปกติ';
+                        } else {
+                            handgripThreshold = 20;
+                            handgripStatus = handgrip < 20 ? 'ผิดปกติ' : 'ปกติ';
+                        }
+                    } else if (age >= 65) {
+                        if (gender === 'หญิง') {
+                            handgripThreshold = 28;
+                            handgripStatus = handgrip < 28 ? 'ผิดปกติ' : 'ปกติ';
+                        } else {
+                            handgripThreshold = 18;
+                            handgripStatus = handgrip < 18 ? 'ผิดปกติ' : 'ปกติ';
+                        }
+                    }
+                    
+                    // Evaluate Gait speed test
+                    const gaitSpeedStatus = gaitSpeed > 12 ? 'ผิดปกติ' : 'ปกติ';
+                    
+                    // Overall result
+                    const overallStatus = (handgripStatus === 'ผิดปกติ' || gaitSpeedStatus === 'ผิดปกติ') 
+                        ? 'ผิดปกติ' : 'ปกติ';
+                    
+                    // Store test data
+                    additionalTestData = {
+                        handgripStrength: handgrip,
+                        gaitSpeed: gaitSpeed,
+                        handgripStatus: handgripStatus,
+                        gaitSpeedStatus: gaitSpeedStatus,
+                        overallStatus: overallStatus
+                    };
+                    
+                    // Display additional test results
+                    const handgripClass = handgripStatus === 'ปกติ' ? 'normal' : 'abnormal';
+                    const gaitSpeedClass = gaitSpeedStatus === 'ปกติ' ? 'normal' : 'abnormal';
+                    const overallClass = overallStatus === 'ปกติ' ? 'normal' : 'abnormal';
+                    
+                    resultsDiv.innerHTML = `
+                        <div style="margin-bottom: 10px;">
+                            <strong>Handgrip strength:</strong> ${handgrip} kg<br>
+                            <span>เกณฑ์: ${gender} อายุ ${age} ปี ต้อง ${gender === 'ชาย' ? '≥' : '≥'} ${handgripThreshold} kg</span><br>
+                            <span class="result-status ${handgripClass}" style="display: inline-block; margin-top: 5px; padding: 5px 10px;">
+                                ${handgripStatus}
+                            </span>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>Gait speed test:</strong> ${gaitSpeed} นาที<br>
+                            <span>เกณฑ์: ต้องไม่เกิน 12 นาที</span><br>
+                            <span class="result-status ${gaitSpeedClass}" style="display: inline-block; margin-top: 5px; padding: 5px 10px;">
+                                ${gaitSpeedStatus}
+                            </span>
+                        </div>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+                        <div>
+                            <strong>สรุปผลการทดสอบเพิ่มเติม:</strong><br>
+                            <span class="result-status ${overallClass}" style="display: inline-block; margin-top: 5px; padding: 8px 15px; font-size: 1.1em;">
+                                ${overallStatus}
+                            </span>
+                        </div>
+                    `;
+                    resultsDiv.style.display = 'block';
+                    
+                    // NOW show the full results with all information
+                    displayFullResults(personalInfo, totalScore, isNormal, resultText, resultClass, bmiEval, additionalTestData);
+                };
+                
+                // Setup save button for additional tests scenario
+                document.getElementById('saveBtn').onclick = () => {
+                    if (additionalTestData.overallStatus) {
+                        saveWithAdditionalTests(personalInfo, answers, totalScore, isNormal, bmiEval, additionalTestData);
+                    } else {
+                        alert('กรุณากดปุ่ม "ประเมินผล" ก่อนบันทึกข้อมูล');
+                    }
+                };
+            }
+        } else {
+            // SARC-F <= 4: Show results immediately
+            displayFullResults(personalInfo, totalScore, isNormal, resultText, resultClass, bmiEval, null);
+            
+            // Hide additional tests section
+            if (additionalTestsSection) {
+                additionalTestsSection.style.display = 'none';
+            }
+            
+            // Setup save button for normal scenario
+            document.getElementById('saveBtn').onclick = () => {
+                saveToGoogleSheets(personalInfo, answers, totalScore, isNormal, bmiEval);
+            };
+        }
+
+        // Show modal
+        modal.style.display = 'block';
+        document.body.classList.add('modal-open');
+
+        // Close modal function
+        const closeModal = () => {
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        };
+
+        // Close modal
+        document.querySelector('.close').onclick = closeModal;
+
+        window.onclick = (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        // New assessment
+        document.getElementById('newAssessmentBtn').onclick = () => {
+            localStorage.removeItem(STORAGE_KEYS.ANSWERS);
+            localStorage.removeItem(STORAGE_KEYS.CURRENT_QUESTION);
+            window.location.href = 'index.html';
+        };
+    }
+
+    // Function to display full results
+    function displayFullResults(personalInfo, totalScore, isNormal, resultText, resultClass, bmiEval, additionalTestData) {
+        const modalBody = document.getElementById('modalBody');
+        
+        // Display chronic diseases
+        const diseasesDisplay = personalInfo.diseases && personalInfo.diseases.length > 0 
+            ? personalInfo.diseases.join(', ') 
+            : 'ไม่มี';
+
+        let resultsHTML = `
             <div class="result-bmi">
                 <strong>ชื่อ-นามสกุล:</strong> ${personalInfo.firstname} ${personalInfo.lastname}<br>
                 <strong>อายุ:</strong> ${personalInfo.age} ปี | <strong>เพศ:</strong> ${personalInfo.gender}<br>
-                <strong>ส่วนสูง:</strong> ${personalInfo.height} ซม. | <strong>น้ำหนัก:</strong> ${personalInfo.weight} กก.
+                <strong>ส่วนสูง:</strong> ${personalInfo.height} ซม. | <strong>น้ำหนัก:</strong> ${personalInfo.weight} กก.<br>
+                <strong>โรคประจำตัว:</strong> ${diseasesDisplay}
             </div>
             <div class="bmi-result">
                 <div class="bmi-value">
@@ -254,39 +515,50 @@ if (document.getElementById('questionForm')) {
             </div>
         `;
 
-        modal.style.display = 'block';
-        document.body.classList.add('modal-open');
+        // Add additional test results if available
+        if (additionalTestData && additionalTestData.overallStatus) {
+            const handgripClass = additionalTestData.handgripStatus === 'ปกติ' ? 'normal' : 'abnormal';
+            const gaitSpeedClass = additionalTestData.gaitSpeedStatus === 'ปกติ' ? 'normal' : 'abnormal';
+            const overallClass = additionalTestData.overallStatus === 'ปกติ' ? 'normal' : 'abnormal';
+            
+            resultsHTML += `
+                <hr style="margin: 20px 0; border: none; border-top: 2px solid #eee;">
+                <h3 style="margin-bottom: 15px;">ผลการทดสอบเพิ่มเติม</h3>
+                <div style="margin-top: 15px; padding: 15px; border-radius: 8px; background: #f5f5f5;">
+                    <div style="margin-bottom: 10px;">
+                        <strong>Handgrip strength:</strong> ${additionalTestData.handgripStrength} kg<br>
+                        <span class="result-status ${handgripClass}" style="display: inline-block; margin-top: 5px; padding: 5px 10px;">
+                            ${additionalTestData.handgripStatus}
+                        </span>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Gait speed test:</strong> ${additionalTestData.gaitSpeed} นาที<br>
+                        <span class="result-status ${gaitSpeedClass}" style="display: inline-block; margin-top: 5px; padding: 5px 10px;">
+                            ${additionalTestData.gaitSpeedStatus}
+                        </span>
+                    </div>
+                    <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+                    <div>
+                        <strong>สรุปผลการทดสอบเพิ่มเติม:</strong><br>
+                        <span class="result-status ${overallClass}" style="display: inline-block; margin-top: 5px; padding: 8px 15px; font-size: 1.1em;">
+                            ${additionalTestData.overallStatus}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
 
-        // Close modal function
-        const closeModal = () => {
-            modal.style.display = 'none';
-            document.body.classList.remove('modal-open');
-        };
-
-        // Close modal
-        document.querySelector('.close').onclick = closeModal;
-
-        window.onclick = (event) => {
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
-
-        // Save to Google Sheets
-        document.getElementById('saveBtn').onclick = () => {
-            const bmiEval = evaluateBMI(personalInfo.bmi, personalInfo.gender);
-            saveToGoogleSheets(personalInfo, answers, totalScore, isNormal, bmiEval);
-        };
-
-        // New assessment
-        document.getElementById('newAssessmentBtn').onclick = () => {
-            localStorage.removeItem(STORAGE_KEYS.ANSWERS);
-            localStorage.removeItem(STORAGE_KEYS.CURRENT_QUESTION);
-            window.location.href = 'index.html';
-        };
+        modalBody.innerHTML = resultsHTML;
+        modalBody.style.display = 'block';
+        
+        // Hide additional tests section when showing full results
+        const additionalTestsSection = document.getElementById('additionalTestsSection');
+        if (additionalTestsSection) {
+            additionalTestsSection.style.display = 'none';
+        }
     }
 
-    async function saveToGoogleSheets(personalInfo, answers, totalScore, isNormal, bmiEval) {
+    async function saveToGoogleSheets(personalInfo, answers, totalScore, isNormal, bmiEval, additionalTestData = null) {
         const saveBtn = document.getElementById('saveBtn');
         const originalText = saveBtn.textContent;
         
@@ -324,11 +596,21 @@ if (document.getElementById('questionForm')) {
                 bmi: personalInfo.bmi,
                 bmiCategory: bmiEval.category,
                 bmiAdvice: bmiEval.advice,
+                diseases: personalInfo.diseases ? personalInfo.diseases.join(', ') : 'ไม่มี',
                 answers: answersArray,
                 totalScore: totalScore,
                 result: isNormal ? 'มวลกล้ามเนื้อปกติ' : 'มีภาวะมวลกล้ามเนื้อน้อย',
                 resultStatus: isNormal ? 'ปกติ' : 'ผิดปกติ'
             };
+            
+            // Add additional test data if available
+            if (additionalTestData && additionalTestData.overallStatus) {
+                data.handgripStrength = additionalTestData.handgripStrength;
+                data.handgripStatus = additionalTestData.handgripStatus;
+                data.gaitSpeed = additionalTestData.gaitSpeed;
+                data.gaitSpeedStatus = additionalTestData.gaitSpeedStatus;
+                data.additionalTestsOverallStatus = additionalTestData.overallStatus;
+            }
 
             console.log('Sending data to Google Sheets:', data);
 
@@ -393,6 +675,11 @@ if (document.getElementById('questionForm')) {
             saveBtn.textContent = originalText;
             saveBtn.disabled = false;
         }
+    }
+
+    // Wrapper function for saving with additional tests
+    async function saveWithAdditionalTests(personalInfo, answers, totalScore, isNormal, bmiEval, additionalTestData) {
+        await saveToGoogleSheets(personalInfo, answers, totalScore, isNormal, bmiEval, additionalTestData);
     }
 
     // Load first question

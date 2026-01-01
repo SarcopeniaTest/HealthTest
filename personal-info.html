@@ -15,7 +15,7 @@
     </header>
     
     <div class="program-title-bar">
-        <h1>โปรแกรมการคัดกรองภาวะมวลกล้ามเนื้อน้อย SARC-F</h1>
+        <h1>โปรแกรมการคัดกรองความเสี่ยงภาวะมวลกล้ามเนื้อน้อย SARC-F</h1>
     </div>
 
     <nav class="breadcrumb">
@@ -74,6 +74,48 @@
                         <label for="bmi">ดัชนีมวลกาย(BMI)</label>
                         <input type="text" id="bmi" name="bmi" readonly>
                     </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="diseases">โรคประจำตัว (คลิกเลือกได้หลายรายการ)</label>
+                    <div class="custom-multi-select">
+                        <div class="select-display" id="diseasesDisplay">เลือกโรคประจำตัว...</div>
+                        <div class="select-options" id="diseasesOptions">
+                            <label class="select-option">
+                                <input type="checkbox" value="ไม่มี" data-disease>
+                                <span>ไม่มี่</span>
+                            </label>
+                            <label class="select-option">
+                                <input type="checkbox" value="โรคความดันโลหิตสูง (HT)" data-disease>
+                                <span>โรคความดันโลหิตสูง (HT)</span>
+                            </label>
+                            <label class="select-option">
+                                <input type="checkbox" value="โรคไขมันในเลือดผิดปกติ (DLP)" data-disease>
+                                <span>โรคไขมันในเลือดผิดปกติ (DLP)</span>
+                            </label>
+                            <label class="select-option">
+                                <input type="checkbox" value="โรคปอดอุดกั้นเรื้อรัง (COPD)" data-disease>
+                                <span>โรคปอดอุดกั้นเรื้อรัง (COPD)</span>
+                            </label>
+                            <label class="select-option">
+                                <input type="checkbox" value="โรคไตเรื้อรัง (CKD)" data-disease>
+                                <span>โรคไตเรื้อรัง (CKD)</span>
+                            </label>
+                            <label class="select-option">
+                                <input type="checkbox" value="โรคมะเร็ง (CA)" data-disease>
+                                <span>โรคมะเร็ง (CA)</span>
+                            </label>
+                            <label class="select-option">
+                                <input type="checkbox" value="โรคตับแข็ง (Liver cirrhosis)" data-disease>
+                                <span>โรคตับแข็ง (Liver cirrhosis)</span>
+                            </label>
+                            <label class="select-option">
+                                <input type="checkbox" value="อื่นๆ" data-disease id="otherDiseaseCheck">
+                                <span>อื่นๆ โปรดระบุ</span>
+                            </label>
+                        </div>
+                    </div>
+                    <input type="text" id="otherDiseaseText" name="otherDiseaseText" placeholder="ระบุโรคอื่นๆ" style="margin-top: 8px; display: none;">
                 </div>
 
                 <div class="button-group">

@@ -29,6 +29,7 @@ function doPost(e) {
         'BMI',
         'ผล BMI',
         'คำแนะนำ BMI',
+        'โรคประจำตัว',
         'Q1: กล้ามเนื้อ',
         'Q2: การเดิน',
         'Q3: ลุกจากเก้าอี้',
@@ -36,7 +37,12 @@ function doPost(e) {
         'Q5: การล้ม',
         'คะแนนรวม',
         'ผลการประเมินกล้ามเนื้อ',
-        'สถานะ'
+        'สถานะ',
+        'Handgrip (kg)',
+        'Handgrip status',
+        'Gait speed (min)',
+        'Gait status',
+        'Additional tests overall'
       ];
       
       sheet.appendRow(headers);
@@ -51,6 +57,12 @@ function doPost(e) {
     }
     
     // เตรียมข้อมูลสำหรับแถวใหม่
+    // Safe access helpers
+    function safeAnswerScore(arr, idx) {
+      if (!arr || !arr[idx]) return '';
+      return (arr[idx].score !== undefined) ? arr[idx].score : (arr[idx].answer || '');
+    }
+
     const row = [
       data.timestamp,
       data.firstname,
@@ -62,14 +74,20 @@ function doPost(e) {
       data.bmi,
       data.bmiCategory || '',
       data.bmiAdvice || '',
-      data.answers[0].answer,
-      data.answers[1].answer,
-      data.answers[2].answer,
-      data.answers[3].answer,
-      data.answers[4].answer,
+      data.diseases || '',
+      safeAnswerScore(data.answers, 0),
+      safeAnswerScore(data.answers, 1),
+      safeAnswerScore(data.answers, 2),
+      safeAnswerScore(data.answers, 3),
+      safeAnswerScore(data.answers, 4),
       data.totalScore,
       data.result,
-      data.resultStatus
+      data.resultStatus,
+      data.handgripStrength || '',
+      data.handgripStatus || '',
+      data.gaitSpeed || '',
+      data.gaitSpeedStatus || '',
+      data.additionalTestsOverallStatus || ''
     ];
     
     // เพิ่มข้อมูลลง Sheet
@@ -83,11 +101,12 @@ function doPost(e) {
     if (data.resultStatus === 'ผิดปกติ') {
       // ผลผิดปกติ - สีแดงอ่อน
       dataRange.setBackground('#ffebee');
-      sheet.getRange(lastRow, 17).setFontColor('#c62828').setFontWeight('bold');
+      // resultStatus is now column 19
+      sheet.getRange(lastRow, 19).setFontColor('#c62828').setFontWeight('bold');
     } else {
       // ผลปกติ - สีเขียวอ่อน
       dataRange.setBackground('#e8f5e9');
-      sheet.getRange(lastRow, 17).setFontColor('#2e7d32').setFontWeight('bold');
+      sheet.getRange(lastRow, 19).setFontColor('#2e7d32').setFontWeight('bold');
     }
     
     // ไฮไลท์ BMI เฉพาะเซลล์นั้น ตามเกณฑ์
