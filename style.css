@@ -24,7 +24,7 @@ body.modal-open {
 .hero-section {
     min-height: 100vh;
     background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
-                url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80') center/cover no-repeat;
+                url('background.png') center/cover no-repeat;
     display: flex;
     flex-direction: column;
     position: relative;
