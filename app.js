@@ -363,27 +363,27 @@ if (document.getElementById('questionForm')) {
                     if (age >= 50 && age <= 64) {
                         if (gender === 'ชาย') {
                             handgripThreshold = 34;
-                            handgripStatus = handgrip < 34 ? 'ผิดปกติ' : 'ปกติ';
+                            handgripStatus = handgrip < 34 ? 'ความแข็งแรงของกล้ามเนื้อต่ำกว่าปกติ' : 'ความแข็งแรงของกล้ามเนื้อปกติ';
                         } else {
                             handgripThreshold = 20;
-                            handgripStatus = handgrip < 20 ? 'ผิดปกติ' : 'ปกติ';
+                            handgripStatus = handgrip < 20 ? 'ความแข็งแรงของกล้ามเนื้อต่ำกว่าปกติ' : 'ความแข็งแรงของกล้ามเนื้อปกติ';
                         }
                     } else if (age >= 65) {
                         if (gender === 'หญิง') {
                             handgripThreshold = 28;
-                            handgripStatus = handgrip < 28 ? 'ผิดปกติ' : 'ปกติ';
+                            handgripStatus = handgrip < 28 ? 'ความแข็งแรงของกล้ามเนื้อต่ำกว่าปกติ' : 'ความแข็งแรงของกล้ามเนื้อปกติ';
                         } else {
                             handgripThreshold = 18;
-                            handgripStatus = handgrip < 18 ? 'ผิดปกติ' : 'ปกติ';
+                            handgripStatus = handgrip < 18 ? 'ความแข็งแรงของกล้ามเนื้อต่ำกว่าปกติ' : 'ความแข็งแรงของกล้ามเนื้อปกติ';
                         }
                     }
                     
                     // Evaluate Gait speed test
-                    const gaitSpeedStatus = gaitSpeed > 12 ? 'ผิดปกติ' : 'ปกติ';
+                    const gaitSpeedStatus = gaitSpeed > 12 ? 'สมรรถภาพกายต่ำกว่าปกติ' : 'สมรรถภาพกายปกติ';
                     
                     // Overall result
-                    const overallStatus = (handgripStatus === 'ผิดปกติ' || gaitSpeedStatus === 'ผิดปกติ') 
-                        ? 'ผิดปกติ' : 'ปกติ';
+                    const overallStatus = (handgripStatus === 'ความแข็งแรงของกล้ามเนื้อต่ำกว่าปกติ' || gaitSpeedStatus === 'สมรรถภาพกายต่ำกว่าปกติ') 
+                        ? 'ท่านอาจจะมีภาวะมวลกล้ามเนื้อน้อย (Possible Sarcopenia)' : 'ท่านไม่มีภาวะมวลกล้ามเนื้อน้อย';
                     
                     // Store test data
                     additionalTestData = {
@@ -523,7 +523,7 @@ if (document.getElementById('questionForm')) {
             
             resultsHTML += `
                 <hr style="margin: 20px 0; border: none; border-top: 2px solid #eee;">
-                <h3 style="margin-bottom: 15px;">ผลการทดสอบเพิ่มเติม</h3>
+                <h3 style="margin-bottom: 15px;">การประเมินเพื่อระบุผู้ป่วยที่สงสัยภาวะมวลกล้ามเนื้อน้อย</h3>
                 <div style="margin-top: 15px; padding: 15px; border-radius: 8px; background: #f5f5f5;">
                     <div style="margin-bottom: 10px;">
                         <strong>Handgrip strength:</strong> ${additionalTestData.handgripStrength} kg<br>
@@ -532,7 +532,7 @@ if (document.getElementById('questionForm')) {
                         </span>
                     </div>
                     <div style="margin-bottom: 10px;">
-                        <strong>Gait speed test:</strong> ${additionalTestData.gaitSpeed} นาที<br>
+                        <strong>Gait speed test:</strong> ${additionalTestData.gaitSpeed} min<br>
                         <span class="result-status ${gaitSpeedClass}" style="display: inline-block; margin-top: 5px; padding: 5px 10px;">
                             ${additionalTestData.gaitSpeedStatus}
                         </span>
