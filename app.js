@@ -251,7 +251,7 @@ if (document.getElementById('questionForm')) {
         
         titleElement.textContent = question.title;
         textElement.textContent = question.question;
-        progressElement.textContent = `คำถามที่ ${currentQuestion + 1} จาก ${questions.length}`;
+        progressElement.textContent = `แบบสอบถามคัดกรองภาวะมวลกล้ามเนื้อน้อยชนิด SARC-F ${currentQuestion + 1} จาก ${questions.length}`;
 
         // Render options
         optionsContainer.innerHTML = question.options.map((option, index) => `
@@ -303,8 +303,8 @@ if (document.getElementById('questionForm')) {
         const personalInfo = JSON.parse(localStorage.getItem(STORAGE_KEYS.PERSONAL_INFO) || '{}');
         
         // Determine muscle mass result
-        const isNormal = totalScore <= 4;
-        const resultText = isNormal ? 'ท่านมีมวลกล้ามเนื้อปกติ' : 'ท่านมีภาวะมวลกล้ามเนื้อน้อย';
+        const isNormal = totalScore < 4;
+        const resultText = isNormal ? 'ท่านไม่มีความเสี่ยงต่อภาวะมวลกล้ามเนื้อน้อย' : 'ท่านมีความเสี่ยงต่อภาวะมวลกล้ามเนื้อน้อย';
         const resultClass = isNormal ? 'normal' : 'abnormal';
         
         // Evaluate BMI
@@ -317,8 +317,8 @@ if (document.getElementById('questionForm')) {
         
         const age = parseInt(personalInfo.age);
 
-        // If SARC-F > 4 AND age >= 50, show additional tests FIRST (before showing results)
-        if (totalScore > 4 && age >= 50) {
+        // If SARC-F >= 4 AND age >= 50, show additional tests FIRST (before showing results)
+        if (totalScore >= 4 && age >= 50) {
             // Hide main result body initially
             modalBody.style.display = 'none';
             
@@ -508,7 +508,7 @@ if (document.getElementById('questionForm')) {
             </div>
             <hr style="margin: 20px 0; border: none; border-top: 2px solid #eee;">
             <div class="result-score">
-                <strong>คะแนนการประเมินมวลกล้ามเนื้อ: ${totalScore} คะแนน</strong>
+                <strong>คะแนน SARC-F: ${totalScore} คะแนน</strong>
             </div>
             <div class="result-status ${resultClass}">
                 ${resultText}
