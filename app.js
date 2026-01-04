@@ -84,11 +84,11 @@ function evaluateBMI(bmi, gender) {
     } else if (bmiValue >= 25.0 && bmiValue <= 29.9) {
         category = 'อ้วน';
         categoryClass = 'obese';
-        advice = 'ควรลดน้ำหนักและปรึกษาแพทย์';
+        advice = 'ควรลดน้ำหนักและปรึกษาทีมสุขภาพ';
     } else {
         category = 'อ้วนมาก';
         categoryClass = 'very-obese';
-        advice = 'ควรปรึกษาแพทย์เพื่อวางแผนลดน้ำหนัก';
+        advice = 'ควรลดน้ำหนักและปรึกษาทีมสุขภาพ';
     }
     
     return { category, categoryClass, advice };
