@@ -304,7 +304,7 @@ if (document.getElementById('questionForm')) {
         
         // Determine muscle mass result
         const isNormal = totalScore < 4;
-        const resultText = isNormal ? 'ท่านไม่มีความเสี่ยงต่อภาวะมวลกล้ามเนื้อน้อย' : 'ท่านมีความเสี่ยงต่อภาวะมวลกล้ามเนื้อน้อย';
+        const resultText = isNormal ? 'ท่านไม่มีความเสี่ยงต่อภาวะมวลกล้ามเนื้อน้อย' : 'ท่านมีวามเป็นไปได้ของภาวะมวลกล้ามเนื้อน้อย';
         const resultClass = isNormal ? 'normal' : 'abnormal';
         
         // Evaluate BMI
@@ -363,18 +363,18 @@ if (document.getElementById('questionForm')) {
                     if (age >= 50 && age <= 64) {
                         if (gender === 'ชาย') {
                             handgripThreshold = 34;
-                            handgripStatus = handgrip < 34 ? 'ความแข็งแรงของกล้ามเนื้อต่ำกว่าปกติ' : 'ความแข็งแรงของกล้ามเนื้อปกติ';
+                            handgripStatus = handgrip <= 34 ? 'ความแข็งแรงของกล้ามเนื้อต่ำกว่าปกติ' : 'ความแข็งแรงของกล้ามเนื้อปกติ';
                         } else {
                             handgripThreshold = 20;
-                            handgripStatus = handgrip < 20 ? 'ความแข็งแรงของกล้ามเนื้อต่ำกว่าปกติ' : 'ความแข็งแรงของกล้ามเนื้อปกติ';
+                            handgripStatus = handgrip <= 20 ? 'ความแข็งแรงของกล้ามเนื้อต่ำกว่าปกติ' : 'ความแข็งแรงของกล้ามเนื้อปกติ';
                         }
                     } else if (age >= 65) {
-                        if (gender === 'หญิง') {
+                        if (gender === 'ชาย') {
                             handgripThreshold = 28;
-                            handgripStatus = handgrip < 28 ? 'ความแข็งแรงของกล้ามเนื้อต่ำกว่าปกติ' : 'ความแข็งแรงของกล้ามเนื้อปกติ';
+                            handgripStatus = handgrip <= 28 ? 'ความแข็งแรงของกล้ามเนื้อต่ำกว่าปกติ' : 'ความแข็งแรงของกล้ามเนื้อปกติ';
                         } else {
                             handgripThreshold = 18;
-                            handgripStatus = handgrip < 18 ? 'ความแข็งแรงของกล้ามเนื้อต่ำกว่าปกติ' : 'ความแข็งแรงของกล้ามเนื้อปกติ';
+                            handgripStatus = handgrip <= 18 ? 'ความแข็งแรงของกล้ามเนื้อต่ำกว่าปกติ' : 'ความแข็งแรงของกล้ามเนื้อปกติ';
                         }
                     }
                     
