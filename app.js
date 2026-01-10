@@ -304,7 +304,7 @@ if (document.getElementById('questionForm')) {
         
         // Determine muscle mass result
         const isNormal = totalScore < 4;
-        const resultText = isNormal ? 'ท่านไม่มีความเสี่ยงต่อภาวะมวลกล้ามเนื้อน้อย' : 'ท่านมีวามเป็นไปได้ของภาวะมวลกล้ามเนื้อน้อย';
+        const resultText = isNormal ? 'ท่านไม่มีความเสี่ยงต่อภาวะมวลกล้ามเนื้อน้อย' : 'ท่านมีความเสี่ยงต่อภาวะมวลกล้ามเนื้อน้อย';
         const resultClass = isNormal ? 'normal' : 'abnormal';
         
         // Evaluate BMI
